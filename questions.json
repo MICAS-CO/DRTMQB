@@ -248,7 +248,7 @@
     "options": {
       "A": "Measure lactate; blood cultures; IV antibiotics; 30 ml/kg crystalloid bolus; vasopressors if hypotension persists",
       "B": "Urine culture; IV antibiotics; 1L colloid; noradrenaline infusion; corticosteroids",
-      "C": "Urine output 10 ml over the last hour. Which bundle of interventions most closely reflects the current UK Sepsis Trust / Surviving Sepsis Campaign Hour-1 Bundle in the pre-transfer phase? A. Measure lactate; blood cultures; IV antibiotics; 30 ml/kg crystalloid bolus; vasopressors if hypotension persists B. Urine culture; IV antibiotics; 1L colloid; noradrenaline infusion; corticosteroids C. Blood cultures; IV antibiotics; repeat arterial lactate; 500 ml crystalloid bolus; reassess fluid responsiveness; vasopressors for MAP <65 mmHg",
+      "C": "Blood cultures; IV antibiotics; repeat arterial lactate; 500 ml crystalloid bolus; reassess fluid responsiveness; vasopressors for MAP <65 mmHg",
       "D": "IV antibiotics; noradrenaline; 10 ml/kg 4.5% human albumin solution; Foley catheter; CXR",
       "E": "Blood cultures; IV antibiotics; 30 ml/kg crystalloid; dobutamine for low cardiac output; oxygen"
     },
@@ -985,7 +985,7 @@
       "A": "Air transport is always preferable to minimise transfer time, regardless of clinical condition",
       "B": "Road transport is always preferable for elderly patients as it avoids altitude-related physiological changes",
       "C": "The choice depends on a structured risk-benefit analysis incorporating clinical acuity, transport time, crew capability, cost, weather, and altitude-related physiological risks for this patient's co-morbidities",
-      "D": "The referring team ask whether air or road transport is preferable. Which of the following most accurately summarises the considerations for transport modality selection? A. Air transport is always preferable to minimise transfer time, regardless of clinical condition B. Road transport is always preferable for elderly patients as it avoids altitude-related physiological changes C. The choice depends on a structured risk-benefit analysis incorporating clinical acuity, transport time, crew capability, cost, weather, and altitude-related physiological risks for this patient's co-morbidities D. Air transport should be avoided in all patients with respiratory co-morbidities",
+      "D": "Air transport should be avoided in all patients with respiratory co-morbidities",
       "E": "Road transport is preferred as helicopter vibration causes pain in bone fractures"
     },
     "correctAnswer": "C",

@@ -1,73 +1,56 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retrieval Question Bank</title>
+  <title>DRTM Question Bank</title>
   
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React and ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for parsing React JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 selection:bg-blue-200 flex flex-col min-h-screen">
-  <div id="root" class="flex-grow flex flex-col"></div>
+<body class="bg-slate-50 font-sans text-slate-800 selection:bg-blue-200">
+  <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback, useMemo } = React;
+    const { useState, useEffect, useCallback } = React;
 
+    // --- SVG Icons (replaces lucide-react) ---
     const Clock = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
     const CheckCircle2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
     const XCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
     const ChevronRight = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>;
-    const ChevronLeft = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>;
-    const Home = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
     const RefreshCcw = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>;
     const BookOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
     const Target = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
     const Award = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>;
     const Filter = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
     const Loader2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>;
-    const Search = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
-    const Tag = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>;
 
     const DOMAINS = [
       { id: "1", name: "Domain 1: Clinical" },
-      { id: "2", name: "Domain 2: Equipment" },
-      { id: "3", name: "Domain 3: Environmental" },
-      { id: "4", name: "Domain 4: Communication" },
-      { id: "5", name: "Domain 5: Operational" },
+      { id: "2", name: "Domain 2: Environmental" },
+      { id: "3", name: "Domain 3: Operational" },
+      { id: "4", name: "Domain 4: Equipment" },
+      { id: "5", name: "Domain 5: Communication" },
       { id: "6", name: "Domain 6: Management & Leadership" },
     ];
 
-    const ALL_TAGS = [
-      "paediatrics", "obstetrics", "airway", "ventilation", "cardiac", 
-      "resuscitation", "neurology", "trauma", "burns", "sepsis_infection", 
-      "haematology", "pharmacology", "calculation", "aviation", "equipment", 
-      "logistics", "communication", "safety", "human_factors", "ethics_law", 
-      "governance", "environmental"
-    ];
-
-    // Helper to make tags readable with explicit edge-case handling
-    const formatTagLabel = (tag) => {
-      if (tag === 'sepsis_infection') return 'Sepsis & Infection';
-      if (tag === 'ethics_law') return 'Ethics & Law';
-      return tag.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    };
-
     function App() {
-      const [appState, setAppState] = useState('menu');
-      const [mode, setMode] = useState('practice'); 
+      const [appState, setAppState] = useState('menu'); // 'menu', 'quiz', 'results'
+      const [mode, setMode] = useState('practice'); // 'practice' or 'exam'
       
       const [questionBank, setQuestionBank] = useState([]);
       const [isLoading, setIsLoading] = useState(true);
       const [fetchError, setFetchError] = useState(null);
       
-      const [searchQuery, setSearchQuery] = useState('');
       const [selectedDomains, setSelectedDomains] = useState([]);
-      const [selectedTags, setSelectedTags] = useState([]);
       const [examQuestionCount, setExamQuestionCount] = useState(10);
       
       const [activeQuestions, setActiveQuestions] = useState([]);
@@ -76,10 +59,13 @@
       const [timeRemaining, setTimeRemaining] = useState(0);
       const [showExplanation, setShowExplanation] = useState(false);
 
+      // Add a cache buster timestamp to ensure GitHub Pages doesn't cache an old version of the JSON
       useEffect(() => {
         fetch('./questions.json?t=' + new Date().getTime())
           .then(response => {
-            if (!response.ok) throw new Error('Failed to load questions.json');
+            if (!response.ok) {
+              throw new Error('Failed to load questions.json');
+            }
             return response.json();
           })
           .then(data => {
@@ -102,38 +88,13 @@
         return shuffled;
       };
 
-      const getFilteredQuestions = () => {
-        let filtered = questionBank;
-        
-        // 1. Text Search
-        if (searchQuery.trim() !== '') {
-          const query = searchQuery.toLowerCase();
-          filtered = filtered.filter(q => 
-            q.text.toLowerCase().includes(query) || 
-            (q.explanation && q.explanation.toLowerCase().includes(query))
-          );
-        }
-
-        // 2. Domain Filter
-        if (selectedDomains.length > 0) {
-          filtered = filtered.filter(q => selectedDomains.includes(q.domain));
-        }
-
-        // 3. Tags Filter (OR logic: if multiple tags selected, match ANY of them)
-        if (selectedTags.length > 0) {
-          filtered = filtered.filter(q => 
-            q.tags && q.tags.some(tag => selectedTags.includes(tag))
-          );
-        }
-
-        return filtered;
-      };
-
       const handleStartQuiz = () => {
-        let filtered = getFilteredQuestions();
-        
+        let filtered = questionBank;
+        if (selectedDomains.length > 0) {
+          filtered = questionBank.filter(q => selectedDomains.includes(q.domain));
+        }
         if (filtered.length === 0) {
-          alert("No questions found for your selected filters. Please adjust your search, domain, or tag selection.");
+          alert("No questions found for selected domains. Please select different filters.");
           return;
         }
 
@@ -183,24 +144,13 @@
         }));
       };
 
-      const handlePrev = () => {
-        if (currentIndex > 0) {
-          const prevIndex = currentIndex - 1;
-          setCurrentIndex(prevIndex);
-          const prevQuestion = activeQuestions[prevIndex];
-          setShowExplanation(mode === 'practice' && userAnswers[prevQuestion.id] ? true : false);
-        }
-      };
-
       const handleNext = () => {
         if (mode === 'practice' && !showExplanation) {
           setShowExplanation(true);
         } else {
           if (currentIndex < activeQuestions.length - 1) {
-            const nextIndex = currentIndex + 1;
-            setCurrentIndex(nextIndex);
-            const nextQuestion = activeQuestions[nextIndex];
-            setShowExplanation(mode === 'practice' && userAnswers[nextQuestion.id] ? true : false);
+            setCurrentIndex(prev => prev + 1);
+            setShowExplanation(false);
           } else {
             handleSubmitQuiz();
           }
@@ -211,24 +161,16 @@
 
       const resetToMenu = () => {
         setAppState('menu');
-        // Resetting the session state, keeping the filters so they don't have to re-click them
+        setSelectedDomains([]);
         setUserAnswers({});
         setCurrentIndex(0);
         setShowExplanation(false);
       };
 
-      const toggleTag = (tag) => {
-        if (selectedTags.includes(tag)) {
-          setSelectedTags(selectedTags.filter(t => t !== tag));
-        } else {
-          setSelectedTags([...selectedTags, tag]);
-        }
-      };
-
       const renderMenu = () => {
         if (isLoading) {
           return (
-            <div className="flex flex-col items-center justify-center flex-grow animate-fade-in py-20">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
               <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
               <p className="text-slate-600 font-medium text-lg">Loading question bank...</p>
             </div>
@@ -237,24 +179,27 @@
 
         if (fetchError) {
           return (
-            <div className="max-w-2xl mx-auto p-6 mt-10 animate-fade-in flex-grow">
+            <div className="max-w-2xl mx-auto p-6 mt-10 animate-fade-in">
               <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-2xl flex flex-col items-center text-center shadow-sm">
                 <XCircle className="w-12 h-12 mb-4 text-red-500" />
                 <h3 className="font-bold text-xl mb-2">Error Loading Questions</h3>
                 <p>Could not load the <strong>questions.json</strong> file.</p>
                 <p className="text-sm mt-2 opacity-80">{fetchError}</p>
+                <p className="text-sm mt-6 text-slate-600">Make sure you have a <code className="bg-slate-200 px-1 py-0.5 rounded">questions.json</code> file in your repository.</p>
               </div>
             </div>
           );
         }
 
-        const maxAvailable = getFilteredQuestions().length;
+        const maxAvailable = selectedDomains.length === 0 
+          ? questionBank.length 
+          : questionBank.filter(q => selectedDomains.includes(q.domain)).length;
 
         return (
-          <div className="max-w-2xl mx-auto p-6 animate-fade-in flex-grow">
+          <div className="max-w-2xl mx-auto p-6 animate-fade-in">
             <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-slate-800 mb-2">Retrieval Question Bank</h1>
-              <p className="text-slate-500">Here to help you prep for that exam!</p>
+              <h1 className="text-3xl font-bold text-slate-800 mb-2">DRTM Fellowship App</h1>
+              <p className="text-slate-500">Retrieval & Transfer Medicine Question Bank</p>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
@@ -304,51 +249,6 @@
               </div>
             )}
 
-            {/* TAG FILTER */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold flex items-center text-slate-700">
-                  <Tag className="w-5 h-5 mr-2 text-indigo-500" /> Topics & Categories
-                </h2>
-                {selectedTags.length > 0 && (
-                  <button onClick={() => setSelectedTags([])} className="text-xs font-semibold text-slate-400 hover:text-slate-600">
-                    Clear Tags
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {ALL_TAGS.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                      selectedTags.includes(tag) 
-                        ? 'bg-indigo-500 text-white border-indigo-500' 
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-indigo-300 hover:bg-slate-100'
-                    }`}
-                  >
-                    {formatTagLabel(tag)}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-3 text-sm text-slate-500">
-                {selectedTags.length === 0 ? "All topics included." : `Showing questions matching ANY of the ${selectedTags.length} selected tags.`}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-              <h2 className="text-lg font-semibold flex items-center text-slate-700 mb-4">
-                <Search className="w-5 h-5 mr-2 text-slate-500" /> Free Text Search
-              </h2>
-              <input
-                type="text"
-                placeholder="e.g. altitude, intubation, ICP..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-slate-700"
-              />
-            </div>
-
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
               <h2 className="text-lg font-semibold flex items-center text-slate-700 mb-4">
                 <Filter className="w-5 h-5 mr-2 text-slate-500" /> Domain Filters
@@ -371,14 +271,17 @@
                   </label>
                 ))}
               </div>
+              <div className="mt-4 text-sm text-slate-500">
+                {selectedDomains.length === 0 ? "All domains selected by default." : `${selectedDomains.length} domains selected.`}
+              </div>
             </div>
 
             <button
               onClick={handleStartQuiz}
               disabled={maxAvailable === 0}
-              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed mb-10"
+              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Begin {mode === 'exam' ? 'Exam' : 'Practice'} ({maxAvailable} available)
+              Begin {mode === 'exam' ? 'Exam' : 'Practice'}
             </button>
           </div>
         );
@@ -393,12 +296,8 @@
         if (mode === 'practice' && !showExplanation) buttonText = "Reveal Answer";
         if (isLastQuestion && (mode === 'exam' || showExplanation)) buttonText = "Finish & View Results";
 
-        let nextDisabled = false;
-        if (mode === 'practice' && !showExplanation && !isAnswered) nextDisabled = true;
-        if (mode === 'exam' && !isAnswered) nextDisabled = true;
-
         return (
-          <div className="max-w-3xl mx-auto p-4 sm:p-6 pt-20 sm:pt-20 flex-grow flex flex-col w-full">
+          <div className="max-w-3xl mx-auto p-4 sm:p-6 min-h-screen flex flex-col">
             <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
               <div className="flex flex-col">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Progress</span>
@@ -425,12 +324,7 @@
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-md">Domain {question.domain}</span>
                 <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-md">Sub {question.subdomain}</span>
-                
-                {question.tags && question.tags.map(tag => (
-                   <span key={tag} className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-md flex items-center">
-                     <Tag className="w-3 h-3 mr-1" /> {formatTagLabel(tag)}
-                   </span>
-                ))}
+                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-md">{question.conceptualAspect}</span>
               </div>
               
               <h3 className="text-xl font-medium text-slate-900 mb-8 leading-relaxed">
@@ -481,22 +375,12 @@
               )}
             </div>
 
-            <div className="flex justify-between pb-8 gap-4">
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className={`flex items-center px-4 sm:px-6 py-4 rounded-xl font-bold transition-all shadow-sm border-2
-                  ${currentIndex === 0 ? 'border-slate-200 text-slate-300 cursor-not-allowed bg-transparent shadow-none' : 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400'}`}
-              >
-                <ChevronLeft className="w-5 h-5 sm:mr-2" />
-                <span className="hidden sm:inline">Previous</span>
-              </button>
-
+            <div className="flex justify-end pb-8">
               <button
                 onClick={handleNext}
-                disabled={nextDisabled}
-                className={`flex flex-1 sm:flex-none justify-center items-center px-6 sm:px-8 py-4 rounded-xl font-bold text-white transition-all shadow-md
-                  ${nextDisabled ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-slate-900 hover:bg-slate-800 hover:-translate-y-0.5'}`}
+                disabled={!isAnswered && mode === 'practice' && !showExplanation}
+                className={`flex items-center px-8 py-4 rounded-xl font-bold text-white transition-all shadow-md
+                  ${(!isAnswered && mode === 'practice' && !showExplanation) ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-slate-900 hover:bg-slate-800 hover:-translate-y-0.5'}`}
               >
                 {buttonText}
                 {buttonText !== "Reveal Answer" && <ChevronRight className="w-5 h-5 ml-2" />}
@@ -514,7 +398,7 @@
         const percentage = Math.round((score / activeQuestions.length) * 100);
 
         return (
-          <div className="max-w-4xl mx-auto p-4 sm:p-6 pt-20 sm:pt-20 pb-20 animate-fade-in flex-grow">
+          <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-20 animate-fade-in">
             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center mb-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
               <Award className={`w-20 h-20 mx-auto mb-4 ${percentage >= 70 ? 'text-emerald-500' : 'text-amber-500'}`} />
@@ -587,7 +471,7 @@
               })}
             </div>
 
-            <div className="mt-8 flex justify-center pb-8">
+            <div className="fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-center">
               <button
                 onClick={resetToMenu}
                 className="flex items-center px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg"
@@ -601,7 +485,7 @@
       };
 
       return (
-        <div className="flex-grow relative flex flex-col">
+        <div className="min-h-screen">
           <style dangerouslySetInnerHTML={{__html: `
             @keyframes fadeIn {
               from { opacity: 0; transform: translateY(10px); }
@@ -611,20 +495,6 @@
               animation: fadeIn 0.4s ease-out forwards;
             }
           `}} />
-          
-          {appState !== 'menu' && (
-            <button
-              onClick={resetToMenu}
-              className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 flex items-center p-3 bg-white text-slate-700 rounded-full shadow-md border border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all group"
-              title="Return to Dashboard"
-            >
-              <Home className="w-5 h-5" />
-              <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[120px] group-hover:ml-2 group-hover:mr-1 transition-all duration-300 ease-in-out font-bold text-sm">
-                Dashboard
-              </span>
-            </button>
-          )}
-
           {appState === 'menu' && renderMenu()}
           {appState === 'quiz' && renderQuiz()}
           {appState === 'results' && renderResults()}
@@ -635,27 +505,5 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
-
-  <footer class="bg-white border-t border-gray-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)] mt-auto pb-safe">
-      <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p class="text-sm text-gray-500 font-medium text-center sm:text-left">
-              Copyright &copy; 2026 Mohammed Hamza
-          </p>
-          <a href="https://www.linkedin.com/in/morrowing/" 
-             target="_blank" 
-             rel="noopener noreferrer" 
-             aria-label="LinkedIn Profile"
-             class="inline-flex items-center p-2.5 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A66C2] active:scale-95">
-              <i data-lucide="linkedin" class="w-5 h-5 fill-current"></i>
-          </a>
-      </div>
-  </footer>
-
-  <script>
-      lucide.createIcons();
-  </script>
 </body>
 </html>
-
-
-```

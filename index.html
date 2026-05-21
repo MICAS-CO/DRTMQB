@@ -3,545 +3,1139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
   <title>Retrieval & Transfer Medicine Question Bank</title>
-  
-  <!-- Tailwind CSS -->
+
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- React and ReactDOM -->
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function () {
+      try {
+        const t = localStorage.getItem('drtm-qbank-theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel for parsing React JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 selection:bg-blue-200">
+<body class="bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 selection:bg-blue-200 dark:selection:bg-blue-900">
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+    const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-    // --- SVG Icons (replaces lucide-react) ---
-    const Clock = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-    const CheckCircle2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
-    const XCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
-    const ChevronRight = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>;
-    const RefreshCcw = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>;
-    const BookOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-    const Target = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
-    const Award = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>;
-    const Filter = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
-    const Loader2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>;
-    const Tag = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>;
+    // -------------------- Icons --------------------
+    const Icon = ({ d, className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{__html: d}}/>;
+    const Clock = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' />;
+    const CheckCircle2 = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>' />;
+    const XCircle = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>' />;
+    const ChevronRight = ({className}) => <Icon className={className} d='<path d="m9 18 6-6-6-6"/>' />;
+    const ChevronLeft = ({className}) => <Icon className={className} d='<path d="m15 18-6-6 6-6"/>' />;
+    const RefreshCcw = ({className}) => <Icon className={className} d='<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/>' />;
+    const BookOpen = ({className}) => <Icon className={className} d='<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' />;
+    const Target = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' />;
+    const Award = ({className}) => <Icon className={className} d='<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>' />;
+    const Filter = ({className}) => <Icon className={className} d='<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>' />;
+    const Loader2 = ({className}) => <Icon className={className} d='<path d="M21 12a9 9 0 1 1-6.219-8.56"/>' />;
+    const Tag = ({className}) => <Icon className={className} d='<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>' />;
+    const Bookmark = ({className, filled}) => <Icon className={className} d={filled ? '<path d="M19 21 12 16 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="currentColor"/>' : '<path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>'} />;
+    const Sun = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>' />;
+    const Moon = ({className}) => <Icon className={className} d='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>' />;
+    const BarChart = ({className}) => <Icon className={className} d='<line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>' />;
+    const History = ({className}) => <Icon className={className} d='<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>' />;
+    const Zap = ({className}) => <Icon className={className} d='<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' />;
+    const PlayCircle = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>' />;
+    const AlertCircle = ({className}) => <Icon className={className} d='<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>' />;
 
+    // -------------------- Constants --------------------
     const DOMAINS = [
-      { id: "1", name: "Domain 1: Clinical" },
-      { id: "2", name: "Domain 2: Environmental" },
-      { id: "3", name: "Domain 3: Operational" },
-      { id: "4", name: "Domain 4: Equipment" },
-      { id: "5", name: "Domain 5: Communication" },
-      { id: "6", name: "Domain 6: Management & Leadership" },
+      { id: "1", name: "Clinical" },
+      { id: "2", name: "Environmental" },
+      { id: "3", name: "Operational" },
+      { id: "4", name: "Equipment" },
+      { id: "5", name: "Communication" },
+      { id: "6", name: "Management & Leadership" },
     ];
 
+    const TAG_CATEGORIES = [
+      { name: "Clinical specialties", tags: ["airway", "ventilation", "cardiac", "neurology", "sepsis_infection", "paediatrics", "obstetrics", "haematology", "burns", "toxicology"] },
+      { name: "Acute & critical care", tags: ["trauma", "resuscitation", "pharmacology", "calculation"] },
+      { name: "Operations & equipment", tags: ["aviation", "logistics", "equipment", "environmental", "safety"] },
+      { name: "Professional skills", tags: ["communication", "human_factors", "governance", "ethics_law"] },
+    ];
+
+    const STORAGE_KEY = "drtm-qbank-v1";
+    const THEME_KEY = "drtm-qbank-theme";
+
+    const formatTagLabel = (tag) =>
+      tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+    // -------------------- Storage --------------------
+    const defaultStorage = () => ({
+      history: [],           // [{date, mode, score, total, durationSec, filters: {domains, tags}, results: [{qid, correctAnswer, userAnswer}]}]
+      bookmarks: [],         // [qid]
+      inProgress: null,      // {mode, questions: [...full shuffled qs], currentIndex, userAnswers, timeRemaining, startedAt, sourceFilters}
+      accuracy: {            // running totals
+        byDomain: {},        // {"1": {seen, correct}, ...}
+        byTag: {},           // {"airway": {seen, correct}, ...}
+        overall: { seen: 0, correct: 0 },
+      },
+    });
+
+    function loadStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultStorage();
+        const parsed = JSON.parse(raw);
+        return { ...defaultStorage(), ...parsed };
+      } catch (e) {
+        return defaultStorage();
+      }
+    }
+
+    function saveStorage(state) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("storage write failed", e);
+      }
+    }
+
+    // -------------------- Shuffle + explanation rewrite (mirrors converter logic) --------------------
+    function reshuffleOptions(question) {
+      const correctText = question.options[question.correctAnswer];
+      const entries = Object.entries(question.options);
+      // Fisher-Yates
+      for (let i = entries.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [entries[i], entries[j]] = [entries[j], entries[i]];
+      }
+      const labels = ['A', 'B', 'C', 'D', 'E'];
+      const newOptions = {};
+      let newCorrect = '';
+      const oldToNew = {};
+      entries.forEach(([oldLetter, text], idx) => {
+        const newLabel = labels[idx];
+        newOptions[newLabel] = text;
+        if (text === correctText) newCorrect = newLabel;
+        oldToNew[oldLetter] = newLabel;
+      });
+      // Update explanation references — same logic as converter
+      let exp = question.explanation || '';
+      exp = exp.replace(/\b(option|answer)s?\s+([A-E])\b/gi, (m, p1, p2) => `${p1} __TMP_${p2.toUpperCase()}__`);
+      exp = exp.replace(/(__TMP_[A-E]__)\s+(and|or)\s+([A-E])\b/g, (m, p1, p2, p3) => `${p1} ${p2} __TMP_${p3.toUpperCase()}__`);
+      exp = exp.replace(/\(([A-E])\)/g, (m, p1) => `(__TMP_${p1.toUpperCase()}__)`);
+      Object.entries(oldToNew).forEach(([oldL, newL]) => {
+        exp = exp.replace(new RegExp(`__TMP_${oldL}__`, 'g'), newL);
+      });
+      return { ...question, options: newOptions, correctAnswer: newCorrect, explanation: exp };
+    }
+
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // -------------------- Explanation rendering --------------------
+    // Lightweight: split on \n\n into paragraphs; split each on inline "(1) … (2) …" patterns into bullet-like rows.
+    function renderExplanation(text) {
+      if (!text) return null;
+      const paragraphs = text.split(/\n\s*\n/);
+      return paragraphs.map((para, pIdx) => {
+        // Detect numbered list pattern "(1) ... (2) ..."
+        const listSplit = para.split(/(?=\(\d{1,2}\)\s)/);
+        if (listSplit.length > 1 && listSplit.filter(s => /^\(\d{1,2}\)/.test(s)).length >= 2) {
+          const intro = listSplit[0].trim();
+          const items = listSplit.slice(1).map(s => s.replace(/^\(\d{1,2}\)\s*/, '').trim()).filter(Boolean);
+          return (
+            <div key={pIdx} className="mb-4 last:mb-0">
+              {intro && <p className="mb-2 leading-relaxed">{intro}</p>}
+              <ol className="list-decimal pl-5 space-y-1.5">
+                {items.map((it, i) => <li key={i} className="leading-relaxed">{it}</li>)}
+              </ol>
+            </div>
+          );
+        }
+        return <p key={pIdx} className="mb-3 last:mb-0 leading-relaxed">{para}</p>;
+      });
+    }
+
+    // -------------------- Theme toggle --------------------
+    function useTheme() {
+      const [theme, setThemeState] = useState(() => {
+        try { return localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+        catch (e) { return 'light'; }
+      });
+      const setTheme = (t) => {
+        setThemeState(t);
+        try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+        if (t === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      };
+      return [theme, setTheme];
+    }
+
+    // -------------------- App --------------------
     function App() {
-      const [appState, setAppState] = useState('menu'); // 'menu', 'quiz', 'results'
-      const [mode, setMode] = useState('practice'); // 'practice' or 'exam'
-      
+      const [theme, setTheme] = useTheme();
+      const [appState, setAppState] = useState('menu');
+      const [mode, setMode] = useState('practice');
       const [questionBank, setQuestionBank] = useState([]);
       const [isLoading, setIsLoading] = useState(true);
       const [fetchError, setFetchError] = useState(null);
-      
+
+      const [storage, setStorageState] = useState(loadStorage);
+      const persistStorage = useCallback((updater) => {
+        setStorageState(prev => {
+          const next = typeof updater === 'function' ? updater(prev) : updater;
+          saveStorage(next);
+          return next;
+        });
+      }, []);
+
       const [selectedDomains, setSelectedDomains] = useState([]);
       const [selectedTags, setSelectedTags] = useState([]);
-      const [examQuestionCount, setExamQuestionCount] = useState(10);
-      
+      const [examQuestionCount, setExamQuestionCount] = useState(25);
+
       const [activeQuestions, setActiveQuestions] = useState([]);
       const [currentIndex, setCurrentIndex] = useState(0);
       const [userAnswers, setUserAnswers] = useState({});
       const [timeRemaining, setTimeRemaining] = useState(0);
       const [showExplanation, setShowExplanation] = useState(false);
+      const [quizStartedAt, setQuizStartedAt] = useState(null);
+      const [resultsFilter, setResultsFilter] = useState('all'); // 'all' | 'incorrect' | 'bookmarked'
+      const [filterError, setFilterError] = useState('');
 
-      // Add a cache buster timestamp to ensure GitHub Pages doesn't cache an old version of the JSON
+      const timerDeadlineRef = useRef(null);
+
+      // -------- Load questions --------
       useEffect(() => {
-        fetch('./questions.json?t=' + new Date().getTime())
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Failed to load questions.json');
-            }
-            return response.json();
-          })
-          .then(data => {
-            setQuestionBank(data);
-            setIsLoading(false);
-          })
-          .catch(error => {
-            console.error("Error fetching questions:", error);
-            setFetchError(error.message);
-            setIsLoading(false);
-          });
+        fetch('./questions.json?t=' + Date.now())
+          .then(r => { if (!r.ok) throw new Error('Failed to load questions.json'); return r.json(); })
+          .then(data => { setQuestionBank(data); setIsLoading(false); })
+          .catch(err => { console.error(err); setFetchError(err.message); setIsLoading(false); });
       }, []);
 
-      const shuffleArray = (array) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-      };
+      // -------- Persist in-progress quiz state --------
+      useEffect(() => {
+        if (appState !== 'quiz') return;
+        const snapshot = {
+          mode,
+          questions: activeQuestions,
+          currentIndex,
+          userAnswers,
+          timeRemaining,
+          startedAt: quizStartedAt,
+          sourceFilters: { domains: selectedDomains, tags: selectedTags },
+        };
+        persistStorage(prev => ({ ...prev, inProgress: snapshot }));
+      }, [appState, mode, activeQuestions, currentIndex, userAnswers, timeRemaining, quizStartedAt, selectedDomains, selectedTags, persistStorage]);
 
-      const handleStartQuiz = () => {
-        let filtered = questionBank;
-        if (selectedDomains.length > 0) {
-          filtered = filtered.filter(q => selectedDomains.includes(q.domain));
+      // -------- beforeunload guard during quiz --------
+      useEffect(() => {
+        if (appState !== 'quiz') return;
+        const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
+        window.addEventListener('beforeunload', handler);
+        return () => window.removeEventListener('beforeunload', handler);
+      }, [appState]);
+
+      // -------- Exam timer (deadline-based so it survives backgrounded tabs) --------
+      useEffect(() => {
+        if (appState !== 'quiz' || mode !== 'exam') return;
+        if (timerDeadlineRef.current === null) {
+          timerDeadlineRef.current = Date.now() + timeRemaining * 1000;
         }
-        if (selectedTags.length > 0) {
-          filtered = filtered.filter(q => Array.isArray(q.tags) && q.tags.some(t => selectedTags.includes(t)));
-        }
-        if (filtered.length === 0) {
-          alert("No questions found for selected filters. Please select different filters.");
+        const id = setInterval(() => {
+          const left = Math.max(0, Math.round((timerDeadlineRef.current - Date.now()) / 1000));
+          setTimeRemaining(left);
+          if (left <= 0) {
+            clearInterval(id);
+            handleSubmitQuiz();
+          }
+        }, 250);
+        return () => clearInterval(id);
+        // eslint-disable-next-line
+      }, [appState, mode]);
+
+      // -------- Keyboard shortcuts --------
+      useEffect(() => {
+        if (appState !== 'quiz') return;
+        const onKey = (e) => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          const q = activeQuestions[currentIndex];
+          if (!q) return;
+          const key = e.key.toUpperCase();
+          if (['A','B','C','D','E'].includes(key)) {
+            e.preventDefault();
+            handleSelectAnswer(key);
+          } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleNext();
+          } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+            e.preventDefault();
+            handlePrev();
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            handleNext();
+          } else if (key === 'F') {
+            e.preventDefault();
+            toggleBookmark(q.id);
+          }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+        // eslint-disable-next-line
+      }, [appState, activeQuestions, currentIndex, showExplanation, userAnswers, mode]);
+
+      // -------- Derived data --------
+      const tagCounts = useMemo(() => {
+        const c = {};
+        questionBank.forEach(q => (q.tags || []).forEach(t => { c[t] = (c[t]||0) + 1; }));
+        return c;
+      }, [questionBank]);
+
+      const domainCounts = useMemo(() => {
+        const c = {};
+        questionBank.forEach(q => { c[q.domain] = (c[q.domain]||0) + 1; });
+        return c;
+      }, [questionBank]);
+
+      const matchingCount = useMemo(() => {
+        return questionBank.filter(q => filterMatches(q, selectedDomains, selectedTags)).length;
+      }, [questionBank, selectedDomains, selectedTags]);
+
+      function filterMatches(q, domains, tags) {
+        const dm = domains.length === 0 || domains.includes(q.domain);
+        const tm = tags.length === 0 || (Array.isArray(q.tags) && q.tags.some(t => tags.includes(t)));
+        return dm && tm;
+      }
+
+      // -------- Tag counts contextual to current domain selection --------
+      const tagCountsInDomains = useMemo(() => {
+        if (selectedDomains.length === 0) return tagCounts;
+        const c = {};
+        questionBank.forEach(q => {
+          if (!selectedDomains.includes(q.domain)) return;
+          (q.tags || []).forEach(t => { c[t] = (c[t]||0) + 1; });
+        });
+        return c;
+      }, [questionBank, tagCounts, selectedDomains]);
+
+      // -------- Handlers --------
+      const startQuizWithQuestions = useCallback((qs, modeOverride) => {
+        if (!qs.length) {
+          setFilterError("No questions match. Adjust filters or pick a different set.");
           return;
         }
+        // Re-shuffle option order per session
+        const reshuffled = qs.map(reshuffleOptions);
+        const m = modeOverride || mode;
+        setActiveQuestions(reshuffled);
+        setCurrentIndex(0);
+        setUserAnswers({});
+        setShowExplanation(false);
+        setQuizStartedAt(Date.now());
+        if (m === 'exam') {
+          const t = reshuffled.length * 60;
+          setTimeRemaining(t);
+          timerDeadlineRef.current = Date.now() + t * 1000;
+        } else {
+          setTimeRemaining(0);
+          timerDeadlineRef.current = null;
+        }
+        setMode(m);
+        setAppState('quiz');
+        setFilterError('');
+      }, [mode]);
 
+      const handleStartQuiz = () => {
+        let filtered = questionBank.filter(q => filterMatches(q, selectedDomains, selectedTags));
         filtered = shuffleArray(filtered);
-
         if (mode === 'exam') {
           const count = Math.min(examQuestionCount, filtered.length);
           filtered = filtered.slice(0, count);
-          setTimeRemaining(count * 60);
         }
+        startQuizWithQuestions(filtered);
+      };
 
-        setActiveQuestions(filtered);
-        setCurrentIndex(0);
-        setUserAnswers({});
+      const handleQuickRandom = (n) => {
+        const filtered = shuffleArray(questionBank).slice(0, n);
+        startQuizWithQuestions(filtered, 'practice');
+      };
+
+      const handleRetryIncorrect = () => {
+        const last = storage.history[0];
+        if (!last) return;
+        const wrongIds = new Set(last.results.filter(r => r.userAnswer !== r.correctAnswer).map(r => r.qid));
+        const qs = questionBank.filter(q => wrongIds.has(q.id));
+        startQuizWithQuestions(qs, 'practice');
+      };
+
+      const handleReviewBookmarks = () => {
+        const ids = new Set(storage.bookmarks);
+        const qs = questionBank.filter(q => ids.has(q.id));
+        startQuizWithQuestions(qs, 'practice');
+      };
+
+      const handleResume = () => {
+        const ip = storage.inProgress;
+        if (!ip) return;
+        setMode(ip.mode);
+        setActiveQuestions(ip.questions);
+        setCurrentIndex(ip.currentIndex);
+        setUserAnswers(ip.userAnswers);
+        setSelectedDomains(ip.sourceFilters?.domains || []);
+        setSelectedTags(ip.sourceFilters?.tags || []);
+        setQuizStartedAt(ip.startedAt);
+        if (ip.mode === 'exam') {
+          setTimeRemaining(ip.timeRemaining || 0);
+          timerDeadlineRef.current = Date.now() + (ip.timeRemaining || 0) * 1000;
+        }
         setShowExplanation(false);
         setAppState('quiz');
       };
 
-      useEffect(() => {
-        let timer;
-        if (appState === 'quiz' && mode === 'exam' && timeRemaining > 0) {
-          timer = setInterval(() => {
-            setTimeRemaining(prev => {
-              if (prev <= 1) {
-                clearInterval(timer);
-                handleSubmitQuiz();
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-        }
-        return () => clearInterval(timer);
-      }, [appState, mode, timeRemaining]);
-
-      const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${m}:${s < 10 ? '0' : ''}${s}`;
+      const handleDiscardInProgress = () => {
+        persistStorage(prev => ({ ...prev, inProgress: null }));
       };
 
-      const handleSelectAnswer = (optionKey) => {
+      const handleSelectAnswer = (key) => {
+        const q = activeQuestions[currentIndex];
+        if (!q) return;
         if (showExplanation && mode === 'practice') return;
-        setUserAnswers(prev => ({
-          ...prev,
-          [activeQuestions[currentIndex].id]: optionKey
-        }));
+        setUserAnswers(prev => ({ ...prev, [q.id]: key }));
       };
 
       const handleNext = () => {
+        const q = activeQuestions[currentIndex];
+        if (!q) return;
         if (mode === 'practice' && !showExplanation) {
+          if (!userAnswers[q.id]) return;
           setShowExplanation(true);
+          return;
+        }
+        if (currentIndex < activeQuestions.length - 1) {
+          setCurrentIndex(i => i + 1);
+          setShowExplanation(false);
         } else {
-          if (currentIndex < activeQuestions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-            setShowExplanation(false);
-          } else {
-            handleSubmitQuiz();
-          }
+          handleSubmitQuiz();
         }
       };
 
-      const handleSubmitQuiz = () => setAppState('results');
+      const handlePrev = () => {
+        if (currentIndex > 0) {
+          setCurrentIndex(i => i - 1);
+          setShowExplanation(false);
+        }
+      };
+
+      const handleSubmitQuiz = () => {
+        const total = activeQuestions.length;
+        const results = activeQuestions.map(q => ({
+          qid: q.id,
+          correctAnswer: q.correctAnswer,
+          userAnswer: userAnswers[q.id] || null,
+        }));
+        const score = results.filter(r => r.userAnswer === r.correctAnswer).length;
+        const durationSec = quizStartedAt ? Math.round((Date.now() - quizStartedAt) / 1000) : 0;
+        const entry = {
+          date: new Date().toISOString(),
+          mode,
+          score,
+          total,
+          durationSec,
+          filters: { domains: selectedDomains, tags: selectedTags },
+          results,
+        };
+        persistStorage(prev => {
+          const next = { ...prev, history: [entry, ...prev.history].slice(0, 25), inProgress: null };
+          // Update accuracy
+          const acc = JSON.parse(JSON.stringify(prev.accuracy));
+          activeQuestions.forEach(q => {
+            const ua = userAnswers[q.id];
+            const correct = ua === q.correctAnswer;
+            acc.overall.seen = (acc.overall.seen || 0) + 1;
+            if (correct) acc.overall.correct = (acc.overall.correct || 0) + 1;
+            const dKey = q.domain;
+            if (!acc.byDomain[dKey]) acc.byDomain[dKey] = { seen: 0, correct: 0 };
+            acc.byDomain[dKey].seen++;
+            if (correct) acc.byDomain[dKey].correct++;
+            (q.tags || []).forEach(t => {
+              if (!acc.byTag[t]) acc.byTag[t] = { seen: 0, correct: 0 };
+              acc.byTag[t].seen++;
+              if (correct) acc.byTag[t].correct++;
+            });
+          });
+          next.accuracy = acc;
+          return next;
+        });
+        setAppState('results');
+        setResultsFilter('all');
+      };
 
       const resetToMenu = () => {
         setAppState('menu');
-        setSelectedDomains([]);
-        setSelectedTags([]);
-        setUserAnswers({});
-        setCurrentIndex(0);
-        setShowExplanation(false);
+        setFilterError('');
       };
 
+      const toggleBookmark = (qid) => {
+        persistStorage(prev => {
+          const has = prev.bookmarks.includes(qid);
+          return { ...prev, bookmarks: has ? prev.bookmarks.filter(x => x !== qid) : [...prev.bookmarks, qid] };
+        });
+      };
+
+      const formatTime = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+
+      // -------------------- Render: header bar --------------------
+      const headerBar = (
+        <div className="flex items-center justify-between max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">RT</div>
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500">Question Bank</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200">Retrieval & Transfer Medicine</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Toggle theme"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      );
+
+      // -------------------- Render: menu --------------------
       const renderMenu = () => {
         if (isLoading) {
           return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
               <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-              <p className="text-slate-600 font-medium text-lg">Loading question bank...</p>
+              <p className="text-slate-600 dark:text-slate-400 font-medium text-lg">Loading question bank...</p>
             </div>
           );
         }
-
         if (fetchError) {
           return (
             <div className="max-w-2xl mx-auto p-6 mt-10 animate-fade-in">
-              <div className="bg-red-50 border border-red-200 text-red-700 p-8 rounded-2xl flex flex-col items-center text-center shadow-sm">
+              <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 p-8 rounded-2xl flex flex-col items-center text-center shadow-sm">
                 <XCircle className="w-12 h-12 mb-4 text-red-500" />
                 <h3 className="font-bold text-xl mb-2">Error Loading Questions</h3>
-                <p>Could not load the <strong>questions.json</strong> file.</p>
+                <p>Could not load <code className="font-mono">questions.json</code>.</p>
                 <p className="text-sm mt-2 opacity-80">{fetchError}</p>
-                <p className="text-sm mt-6 text-slate-600">Make sure you have a <code className="bg-slate-200 px-1 py-0.5 rounded">questions.json</code> file in your repository.</p>
+                <button onClick={() => window.location.reload()} className="mt-6 px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold">Retry</button>
               </div>
             </div>
           );
         }
 
-        const availableTags = Array.from(
-          new Set(questionBank.flatMap(q => Array.isArray(q.tags) ? q.tags : []))
-        ).sort();
-
-        const maxAvailable = questionBank.filter(q => {
-          const domainMatch = selectedDomains.length === 0 || selectedDomains.includes(q.domain);
-          const tagMatch = selectedTags.length === 0 ||
-            (Array.isArray(q.tags) && q.tags.some(t => selectedTags.includes(t)));
-          return domainMatch && tagMatch;
-        }).length;
-
-        const formatTagLabel = (tag) =>
-          tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const acc = storage.accuracy.overall;
+        const accPct = acc.seen > 0 ? Math.round((acc.correct / acc.seen) * 100) : null;
+        const lastAttempt = storage.history[0];
+        const incorrectFromLast = lastAttempt ? lastAttempt.results.filter(r => r.userAnswer !== r.correctAnswer).length : 0;
 
         return (
-          <div className="max-w-2xl mx-auto p-6 animate-fade-in">
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-slate-800 mb-2">Retrieval & Transfer Medicine Question Bank</h1>
-              <p className="text-slate-500">Here to help you ACE that exam!</p>
+          <div className="max-w-3xl mx-auto p-4 sm:p-6 animate-fade-in">
+            <div className="text-center mb-8 mt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2 leading-tight">Retrieval & Transfer Medicine Question Bank</h1>
+              <p className="text-slate-500 dark:text-slate-400">Scenario-based practice for the DipRTM exam.</p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-              <h2 className="text-lg font-semibold flex items-center text-slate-700 mb-4">
-                <Target className="w-5 h-5 mr-2 text-blue-500" /> Mode Selection
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => setMode('practice')}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    mode === 'practice' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600 hover:border-blue-200'
-                  }`}
-                >
-                  <BookOpen className="w-6 h-6 mx-auto mb-2" />
-                  <div className="font-medium">Practice Mode</div>
-                  <div className="text-xs opacity-75 mt-1">Instant feedback</div>
-                </button>
-                <button
-                  onClick={() => setMode('exam')}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    mode === 'exam' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:border-indigo-200'
-                  }`}
-                >
-                  <Clock className="w-6 h-6 mx-auto mb-2" />
-                  <div className="font-medium">Timed Exam</div>
-                  <div className="text-xs opacity-75 mt-1">1 min per question</div>
-                </button>
-              </div>
-            </div>
-
-            {mode === 'exam' && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Number of Questions (Max: {maxAvailable})
-                </label>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max={maxAvailable || 1} 
-                  value={Math.min(examQuestionCount, maxAvailable)}
-                  onChange={(e) => setExamQuestionCount(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                />
-                <div className="text-center mt-2 font-bold text-indigo-600">
-                  {Math.min(examQuestionCount, maxAvailable)} Questions ({Math.min(examQuestionCount, maxAvailable)} Minutes)
+            {storage.inProgress && (
+              <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40 p-5 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <PlayCircle className="w-6 h-6 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold text-amber-900 dark:text-amber-100">You have a quiz in progress</div>
+                    <div className="text-sm text-amber-700 dark:text-amber-300">
+                      {storage.inProgress.mode === 'exam' ? 'Timed exam' : 'Practice'} — question {storage.inProgress.currentIndex + 1} of {storage.inProgress.questions.length}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={handleResume} className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold text-sm">Resume</button>
+                  <button onClick={handleDiscardInProgress} className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-sm">Discard</button>
                 </div>
               </div>
             )}
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
-              <h2 className="text-lg font-semibold flex items-center text-slate-700 mb-4">
-                <Filter className="w-5 h-5 mr-2 text-slate-500" /> Domain Filters
-              </h2>
-              <div className="space-y-3">
-                {DOMAINS.map(domain => (
-                  <label key={domain.id} className="flex items-center space-x-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={selectedDomains.includes(domain.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) setSelectedDomains([...selectedDomains, domain.id]);
-                        else setSelectedDomains(selectedDomains.filter(id => id !== domain.id));
-                      }}
-                      className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-colors"
-                    />
-                    <span className="text-slate-700 group-hover:text-slate-900 transition-colors">
-                      {domain.name}
-                    </span>
-                  </label>
-                ))}
+            {accPct !== null && (
+              <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
+                  <div className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Overall</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{accPct}%</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{acc.correct} / {acc.seen}</div>
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
+                  <div className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Attempts</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{storage.history.length}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">completed</div>
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
+                  <div className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Bookmarks</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{storage.bookmarks.length}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">flagged</div>
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
+                  <div className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Bank</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{questionBank.length}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">questions</div>
+                </div>
               </div>
-              <div className="mt-4 text-sm text-slate-500">
-                {selectedDomains.length === 0 ? "All domains selected by default." : `${selectedDomains.length} domains selected.`}
+            )}
+
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 mb-6">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center"><Zap className="w-4 h-4 mr-2" /> Quick start</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onClick={() => handleQuickRandom(10)} className="px-3 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors">Random 10</button>
+                <button onClick={() => handleQuickRandom(25)} className="px-3 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors">Random 25</button>
+                <button onClick={handleRetryIncorrect} disabled={incorrectFromLast === 0} className="px-3 py-3 bg-amber-100 hover:bg-amber-200 disabled:bg-slate-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 dark:disabled:bg-slate-800/30 disabled:text-slate-400 dark:disabled:text-slate-600 rounded-xl text-sm font-semibold text-amber-800 dark:text-amber-300 transition-colors">
+                  Retry incorrect {incorrectFromLast > 0 ? `(${incorrectFromLast})` : ''}
+                </button>
+                <button onClick={handleReviewBookmarks} disabled={storage.bookmarks.length === 0} className="px-3 py-3 bg-blue-100 hover:bg-blue-200 disabled:bg-slate-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/40 dark:disabled:bg-slate-800/30 disabled:text-slate-400 dark:disabled:text-slate-600 rounded-xl text-sm font-semibold text-blue-800 dark:text-blue-300 transition-colors">
+                  Bookmarks {storage.bookmarks.length > 0 ? `(${storage.bookmarks.length})` : ''}
+                </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 mb-6">
+              <h2 className="text-lg font-semibold flex items-center text-slate-700 dark:text-slate-200 mb-4">
+                <Target className="w-5 h-5 mr-2 text-blue-500" /> Mode
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setMode('practice')}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    mode === 'practice'
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-200 dark:hover:border-blue-900'
+                  }`}
+                >
+                  <BookOpen className="w-5 h-5 mb-2" />
+                  <div className="font-semibold">Practice</div>
+                  <div className="text-xs opacity-75 mt-0.5">Instant feedback after each answer</div>
+                </button>
+                <button
+                  onClick={() => setMode('exam')}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    mode === 'exam'
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-200 dark:hover:border-indigo-900'
+                  }`}
+                >
+                  <Clock className="w-5 h-5 mb-2" />
+                  <div className="font-semibold">Timed exam</div>
+                  <div className="text-xs opacity-75 mt-0.5">1 min per question, pooled time</div>
+                </button>
+              </div>
+
+              {mode === 'exam' && (
+                <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Number of questions</label>
+                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                      {Math.min(examQuestionCount, matchingCount)} <span className="text-slate-400 dark:text-slate-500 font-normal">/ {matchingCount} available</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 mb-3">
+                    {[10, 25, 50, 100, matchingCount].filter((v, i, a) => v > 0 && a.indexOf(v) === i).slice(0, 5).map(v => (
+                      <button key={v}
+                        onClick={() => setExamQuestionCount(v)}
+                        className={`py-2 rounded-lg text-sm font-semibold transition-colors ${
+                          examQuestionCount === v
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}>
+                        {v === matchingCount ? 'All' : v}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Estimated time: {Math.min(examQuestionCount, matchingCount)} minutes</div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center text-slate-700">
-                  <Tag className="w-5 h-5 mr-2 text-slate-500" /> Tag Filters
+                <h2 className="text-lg font-semibold flex items-center text-slate-700 dark:text-slate-200">
+                  <Filter className="w-5 h-5 mr-2 text-slate-500" /> Domains
                 </h2>
-                {selectedTags.length > 0 && (
-                  <button
-                    onClick={() => setSelectedTags([])}
-                    className="text-xs font-semibold text-slate-500 hover:text-slate-700 underline"
-                  >
-                    Clear all
-                  </button>
+                {selectedDomains.length > 0 && (
+                  <button onClick={() => setSelectedDomains([])} className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 underline">Clear</button>
                 )}
               </div>
-              {availableTags.length === 0 ? (
-                <p className="text-sm text-slate-500">No tags available.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {availableTags.map(tag => {
-                    const isSelected = selectedTags.includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected) setSelectedTags(selectedTags.filter(t => t !== tag));
-                          else setSelectedTags([...selectedTags, tag]);
-                        }}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                          isSelected
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                            : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-slate-800'
-                        }`}
-                      >
-                        {formatTagLabel(tag)}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              <div className="mt-4 text-sm text-slate-500">
-                {selectedTags.length === 0
-                  ? "All tags included by default."
-                  : `${selectedTags.length} tag${selectedTags.length === 1 ? '' : 's'} selected · ${maxAvailable} matching question${maxAvailable === 1 ? '' : 's'}.`}
-              </div>
-            </div>
-
-            <button
-              onClick={handleStartQuiz}
-              disabled={maxAvailable === 0}
-              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Begin {mode === 'exam' ? 'Exam' : 'Practice'}
-            </button>
-          </div>
-        );
-      };
-
-      const renderQuiz = () => {
-        const question = activeQuestions[currentIndex];
-        const isAnswered = !!userAnswers[question.id];
-        const isLastQuestion = currentIndex === activeQuestions.length - 1;
-        
-        let buttonText = "Next Question";
-        if (mode === 'practice' && !showExplanation) buttonText = "Reveal Answer";
-        if (isLastQuestion && (mode === 'exam' || showExplanation)) buttonText = "Finish & View Results";
-
-        return (
-          <div className="max-w-3xl mx-auto p-4 sm:p-6 min-h-screen flex flex-col">
-            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Progress</span>
-                <span className="font-semibold text-slate-700">Question {currentIndex + 1} / {activeQuestions.length}</span>
-              </div>
-              {mode === 'exam' && (
-                <div className={`flex items-center font-mono text-lg font-bold ${timeRemaining < 60 ? 'text-red-500 animate-pulse' : 'text-indigo-600'}`}>
-                  <Clock className="w-5 h-5 mr-2" />
-                  {formatTime(timeRemaining)}
-                </div>
-              )}
-              {mode === 'practice' && (
-                <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase">
-                  Practice
-                </div>
-              )}
-            </div>
-
-            <div className="w-full bg-slate-200 h-1.5 rounded-full mb-8">
-              <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${((currentIndex + 1) / activeQuestions.length) * 100}%` }}></div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 flex-grow mb-6">
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-md">Domain {question.domain}</span>
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-md">Sub {question.subdomain}</span>
-                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-md">{question.conceptualAspect}</span>
-              </div>
-              
-              <h3 className="text-xl font-medium text-slate-900 mb-8 leading-relaxed">
-                {question.text}
-              </h3>
-
-              <div className="space-y-3">
-                {Object.entries(question.options).map(([key, value]) => {
-                  const isSelected = userAnswers[question.id] === key;
-                  const isCorrect = key === question.correctAnswer;
-                  
-                  let btnClass = "border-slate-200 hover:border-blue-300 hover:bg-slate-50 text-slate-700";
-                  if (isSelected) btnClass = "border-blue-500 bg-blue-50 text-blue-800 ring-1 ring-blue-500";
-
-                  if (showExplanation && mode === 'practice') {
-                    if (isCorrect) btnClass = "border-emerald-500 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500";
-                    else if (isSelected && !isCorrect) btnClass = "border-red-400 bg-red-50 text-red-800 opacity-70";
-                    else btnClass = "border-slate-200 opacity-50";
-                  }
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DOMAINS.map(domain => {
+                  const isSelected = selectedDomains.includes(domain.id);
                   return (
                     <button
-                      key={key}
-                      onClick={() => handleSelectAnswer(key)}
-                      disabled={showExplanation && mode === 'practice'}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start ${btnClass}`}
+                      key={domain.id}
+                      onClick={() => setSelectedDomains(isSelected ? selectedDomains.filter(d => d !== domain.id) : [...selectedDomains, domain.id])}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl border-2 text-left transition-all ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+                          : 'border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900'
+                      }`}
                     >
-                      <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center font-bold mr-4 mt-0.5">
-                        {key}
+                      <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                        <span className="text-slate-400 dark:text-slate-500 mr-1.5">{domain.id}</span>{domain.name}
                       </span>
-                      <span className="leading-relaxed mt-1">{value}</span>
-                      {showExplanation && mode === 'practice' && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500 ml-auto flex-shrink-0" />}
-                      {showExplanation && mode === 'practice' && isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500 ml-auto flex-shrink-0" />}
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{domainCounts[domain.id] || 0}</span>
                     </button>
                   );
                 })}
               </div>
+            </div>
 
-              {showExplanation && mode === 'practice' && (
-                <div className="mt-8 p-5 bg-slate-50 rounded-xl border border-slate-100 animate-fade-in">
-                  <h4 className="font-bold text-slate-800 mb-2 flex items-center">
-                    <BookOpen className="w-5 h-5 mr-2 text-blue-500" /> Explanation
-                  </h4>
-                  <p className="text-slate-600 leading-relaxed text-sm">
-                    {question.explanation}
-                  </p>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold flex items-center text-slate-700 dark:text-slate-200">
+                  <Tag className="w-5 h-5 mr-2 text-slate-500" /> Tags
+                </h2>
+                {selectedTags.length > 0 && (
+                  <button onClick={() => setSelectedTags([])} className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 underline">Clear ({selectedTags.length})</button>
+                )}
+              </div>
+              <div className="space-y-4">
+                {TAG_CATEGORIES.map(cat => {
+                  const cat_tags = cat.tags.filter(t => tagCounts[t]);
+                  if (cat_tags.length === 0) return null;
+                  return (
+                    <div key={cat.name}>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{cat.name}</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat_tags.map(tag => {
+                          const isSelected = selectedTags.includes(tag);
+                          const ctxCount = tagCountsInDomains[tag] || 0;
+                          const disabled = ctxCount === 0 && selectedDomains.length > 0;
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              disabled={disabled}
+                              onClick={() => setSelectedTags(isSelected ? selectedTags.filter(t => t !== tag) : [...selectedTags, tag])}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                                isSelected
+                                  ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                                  : disabled
+                                    ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-700'
+                              }`}
+                            >
+                              {formatTagLabel(tag)}
+                              <span className={`text-xs font-mono ${isSelected ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'}`}>{ctxCount}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {filterError && (
+              <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 px-4 py-3 flex items-center gap-2 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {filterError}
+              </div>
+            )}
+
+            <button
+              onClick={handleStartQuiz}
+              disabled={matchingCount === 0}
+              className="w-full py-4 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            >
+              Begin {mode === 'exam' ? `exam (${Math.min(examQuestionCount, matchingCount)} questions)` : `practice (${matchingCount} questions)`}
+            </button>
+
+            {storage.history.length > 0 && (
+              <div className="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6">
+                <h2 className="text-lg font-semibold flex items-center text-slate-700 dark:text-slate-200 mb-4">
+                  <History className="w-5 h-5 mr-2 text-slate-500" /> Recent attempts
+                </h2>
+                <div className="space-y-2">
+                  {storage.history.slice(0, 5).map((h, idx) => {
+                    const pct = Math.round((h.score / h.total) * 100);
+                    const accClass = pct >= 70 ? 'text-emerald-600 dark:text-emerald-400' : pct >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400';
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                        <div className="flex items-center gap-3">
+                          <span className={`font-bold text-lg ${accClass}`}>{pct}%</span>
+                          <div className="text-sm">
+                            <div className="font-medium text-slate-800 dark:text-slate-200">{h.score}/{h.total} · {h.mode}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{new Date(h.date).toLocaleString()}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {storage.accuracy.byDomain && Object.keys(storage.accuracy.byDomain).length > 0 && (
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6">
+                  <h2 className="text-lg font-semibold flex items-center text-slate-700 dark:text-slate-200 mb-4">
+                    <BarChart className="w-5 h-5 mr-2 text-slate-500" /> Accuracy by domain
+                  </h2>
+                  <div className="space-y-2">
+                    {DOMAINS.map(d => {
+                      const a = storage.accuracy.byDomain[d.id];
+                      if (!a || a.seen === 0) return null;
+                      const pct = Math.round((a.correct / a.seen) * 100);
+                      return (
+                        <div key={d.id}>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-slate-600 dark:text-slate-400">{d.id}. {d.name}</span>
+                            <span className="font-mono text-slate-500 dark:text-slate-500">{a.correct}/{a.seen} · {pct}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className={`h-2 rounded-full ${pct >= 70 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end pb-8">
-              <button
-                onClick={handleNext}
-                disabled={!isAnswered && mode === 'practice' && !showExplanation}
-                className={`flex items-center px-8 py-4 rounded-xl font-bold text-white transition-all shadow-md
-                  ${(!isAnswered && mode === 'practice' && !showExplanation) ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-slate-900 hover:bg-slate-800 hover:-translate-y-0.5'}`}
-              >
-                {buttonText}
-                {buttonText !== "Reveal Answer" && <ChevronRight className="w-5 h-5 ml-2" />}
-              </button>
+            <div className="mt-8 text-xs text-slate-400 dark:text-slate-600 text-center">
+              Keyboard: <kbd className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">A–E</kbd> select · <kbd className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">Enter</kbd> next · <kbd className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">←</kbd> back · <kbd className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">F</kbd> flag
             </div>
           </div>
         );
       };
 
-      const renderResults = () => {
-        let score = 0;
-        activeQuestions.forEach(q => {
-          if (userAnswers[q.id] === q.correctAnswer) score++;
-        });
-        const percentage = Math.round((score / activeQuestions.length) * 100);
+      // -------------------- Render: quiz --------------------
+      const renderQuiz = () => {
+        const question = activeQuestions[currentIndex];
+        if (!question) return null;
+        const isAnswered = !!userAnswers[question.id];
+        const isLastQuestion = currentIndex === activeQuestions.length - 1;
+        const isBookmarked = storage.bookmarks.includes(question.id);
+
+        let buttonText = "Next question";
+        if (mode === 'practice' && !showExplanation) buttonText = "Reveal answer";
+        if (isLastQuestion && (mode === 'exam' || showExplanation)) buttonText = "Finish & view results";
 
         return (
-          <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-20 animate-fade-in">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center mb-8 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
-              <Award className={`w-20 h-20 mx-auto mb-4 ${percentage >= 70 ? 'text-emerald-500' : 'text-amber-500'}`} />
-              <h2 className="text-3xl font-bold text-slate-800 mb-2">Assessment Complete</h2>
-              <p className="text-slate-500 mb-6">You completed {activeQuestions.length} questions in {mode} mode.</p>
-              
-              <div className="inline-flex flex-col items-center justify-center p-6 bg-slate-50 rounded-full w-48 h-48 border-4 border-slate-100">
-                <span className="text-5xl font-black text-slate-800">{percentage}%</span>
-                <span className="text-slate-500 font-medium mt-1">{score} / {activeQuestions.length}</span>
+          <div className="max-w-3xl mx-auto pb-24">
+            <div className="sticky top-0 z-20 backdrop-blur-md bg-slate-50/85 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800">
+              <div className="px-4 sm:px-6 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => { if (confirm('Exit quiz? Your progress is saved.')) setAppState('menu'); }} className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium">
+                    ← Exit
+                  </button>
+                  <div className="text-sm">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{currentIndex + 1}</span>
+                    <span className="text-slate-400 dark:text-slate-500"> / {activeQuestions.length}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {mode === 'exam' && (
+                    <div className={`flex items-center font-mono text-base font-bold ${timeRemaining < 60 ? 'text-red-500 dark:text-red-400 animate-pulse' : 'text-indigo-600 dark:text-indigo-400'}`} aria-live="polite">
+                      <Clock className="w-4 h-4 mr-1.5" />
+                      {formatTime(timeRemaining)}
+                    </div>
+                  )}
+                  {mode === 'practice' && (
+                    <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold uppercase">Practice</span>
+                  )}
+                  <button
+                    onClick={() => toggleBookmark(question.id)}
+                    className={`p-1.5 rounded-lg transition-colors ${isBookmarked ? 'text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40' : 'text-slate-400 dark:text-slate-500 hover:text-amber-500 dark:hover:text-amber-400'}`}
+                    title={isBookmarked ? 'Remove bookmark (F)' : 'Bookmark (F)'}
+                    aria-pressed={isBookmarked}
+                  >
+                    <Bookmark className="w-5 h-5" filled={isBookmarked} />
+                  </button>
+                </div>
+              </div>
+              <div className="h-1 bg-slate-200 dark:bg-slate-800">
+                <div className="h-1 bg-blue-500 dark:bg-blue-400 transition-all duration-300" style={{ width: `${((currentIndex + 1) / activeQuestions.length) * 100}%` }}></div>
               </div>
             </div>
 
-            <h3 className="text-xl font-bold text-slate-800 mb-6 pl-2">Detailed Review</h3>
-            
-            <div className="space-y-6">
-              {activeQuestions.map((q, idx) => {
+            <div className="px-4 sm:px-6 pt-6">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 mb-6">
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Domain {question.domain}</span>
+                  {(question.tags || []).slice(0, 4).map(t => (
+                    <span key={t} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md">{formatTagLabel(t)}</span>
+                  ))}
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-medium text-slate-900 dark:text-slate-100 mb-6 leading-relaxed">
+                  {question.text}
+                </h3>
+
+                <div className="space-y-2.5">
+                  {Object.entries(question.options).map(([key, value]) => {
+                    const isSelected = userAnswers[question.id] === key;
+                    const isCorrect = key === question.correctAnswer;
+                    let btnClass = "border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-200";
+                    if (isSelected) btnClass = "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-200 ring-1 ring-blue-500";
+                    if (showExplanation && mode === 'practice') {
+                      if (isCorrect) btnClass = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 ring-1 ring-emerald-500";
+                      else if (isSelected && !isCorrect) btnClass = "border-red-400 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 opacity-80";
+                      else btnClass = "border-slate-200 dark:border-slate-800 opacity-50";
+                    }
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleSelectAnswer(key)}
+                        disabled={showExplanation && mode === 'practice'}
+                        aria-pressed={isSelected}
+                        className={`w-full text-left p-3.5 rounded-xl border-2 transition-all flex items-start ${btnClass}`}
+                      >
+                        <kbd className="flex-shrink-0 w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center font-bold mr-3 mt-0.5 text-sm">{key}</kbd>
+                        <span className="leading-relaxed mt-0.5 flex-1">{value}</span>
+                        {showExplanation && mode === 'practice' && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 ml-2 flex-shrink-0 mt-1" />}
+                        {showExplanation && mode === 'practice' && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-red-500 ml-2 flex-shrink-0 mt-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {showExplanation && mode === 'practice' && (
+                  <div className="mt-6 p-5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-700 animate-fade-in">
+                    <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center">
+                      <BookOpen className="w-5 h-5 mr-2 text-blue-500" /> Explanation
+                    </h4>
+                    <div className="text-slate-600 dark:text-slate-300 text-sm">
+                      {renderExplanation(question.explanation)}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center gap-3 pb-8">
+                <button
+                  onClick={handlePrev}
+                  disabled={currentIndex === 0}
+                  className="flex items-center px-4 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  title="Previous question (←)"
+                >
+                  <ChevronLeft className="w-5 h-5 mr-1" /> Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  disabled={!isAnswered && mode === 'practice' && !showExplanation}
+                  className={`flex items-center px-6 py-3 rounded-xl font-bold text-white transition-all shadow-md
+                    ${(!isAnswered && mode === 'practice' && !showExplanation)
+                      ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed shadow-none'
+                      : 'bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 hover:-translate-y-0.5'}`}
+                  title="Next (Enter)"
+                >
+                  {buttonText}
+                  {buttonText !== "Reveal answer" && <ChevronRight className="w-5 h-5 ml-1" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // -------------------- Render: results --------------------
+      const renderResults = () => {
+        let score = 0;
+        activeQuestions.forEach(q => { if (userAnswers[q.id] === q.correctAnswer) score++; });
+        const percentage = Math.round((score / activeQuestions.length) * 100);
+
+        // Per-domain & per-tag breakdown for this attempt
+        const domainBreak = {};
+        const tagBreak = {};
+        activeQuestions.forEach(q => {
+          const ok = userAnswers[q.id] === q.correctAnswer;
+          if (!domainBreak[q.domain]) domainBreak[q.domain] = { seen: 0, correct: 0 };
+          domainBreak[q.domain].seen++;
+          if (ok) domainBreak[q.domain].correct++;
+          (q.tags || []).forEach(t => {
+            if (!tagBreak[t]) tagBreak[t] = { seen: 0, correct: 0 };
+            tagBreak[t].seen++;
+            if (ok) tagBreak[t].correct++;
+          });
+        });
+
+        const incorrectQs = activeQuestions.filter(q => userAnswers[q.id] !== q.correctAnswer);
+
+        let shown = activeQuestions;
+        if (resultsFilter === 'incorrect') shown = incorrectQs;
+        else if (resultsFilter === 'bookmarked') shown = activeQuestions.filter(q => storage.bookmarks.includes(q.id));
+
+        const retryIncorrect = () => {
+          if (!incorrectQs.length) return;
+          startQuizWithQuestions(incorrectQs, 'practice');
+        };
+
+        const bookmarkAllIncorrect = () => {
+          persistStorage(prev => {
+            const set = new Set(prev.bookmarks);
+            incorrectQs.forEach(q => set.add(q.id));
+            return { ...prev, bookmarks: Array.from(set) };
+          });
+        };
+
+        return (
+          <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-32 animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 text-center mb-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+              <Award className={`w-16 h-16 mx-auto mb-3 ${percentage >= 70 ? 'text-emerald-500' : percentage >= 50 ? 'text-amber-500' : 'text-red-500'}`} />
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">Assessment complete</h2>
+              <p className="text-slate-500 dark:text-slate-400 mb-5 text-sm">{activeQuestions.length} questions · {mode} · {quizStartedAt ? `${Math.round((Date.now() - quizStartedAt) / 60000)} min` : '—'}</p>
+              <div className="inline-flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-800 rounded-full w-44 h-44 border-4 border-slate-100 dark:border-slate-700">
+                <span className="text-5xl font-black text-slate-900 dark:text-slate-100">{percentage}%</span>
+                <span className="text-slate-500 dark:text-slate-400 font-medium mt-1">{score} / {activeQuestions.length}</span>
+              </div>
+              <div className="text-xs text-slate-400 dark:text-slate-500 mt-3">Pass threshold: 70%</div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              <button
+                onClick={retryIncorrect}
+                disabled={incorrectQs.length === 0}
+                className="px-4 py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold flex items-center justify-center"
+              >
+                <RefreshCcw className="w-4 h-4 mr-2" /> Retry incorrect ({incorrectQs.length})
+              </button>
+              <button
+                onClick={bookmarkAllIncorrect}
+                disabled={incorrectQs.length === 0}
+                className="px-4 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold flex items-center justify-center"
+              >
+                <Bookmark className="w-4 h-4 mr-2" /> Bookmark all wrong
+              </button>
+              <button
+                onClick={resetToMenu}
+                className="px-4 py-3 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl font-semibold flex items-center justify-center"
+              >
+                ← Dashboard
+              </button>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 mb-6">
+              <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center"><BarChart className="w-5 h-5 mr-2 text-slate-500" /> Performance by domain</h3>
+              <div className="space-y-3">
+                {DOMAINS.map(d => {
+                  const a = domainBreak[d.id];
+                  if (!a) return null;
+                  const pct = Math.round((a.correct / a.seen) * 100);
+                  return (
+                    <div key={d.id}>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">{d.name}</span>
+                        <span className="font-mono text-slate-500 dark:text-slate-400">{a.correct}/{a.seen} · {pct}%</span>
+                      </div>
+                      <div className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className={`h-2.5 rounded-full transition-all ${pct >= 70 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-4 mb-6 flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 mr-2">Show:</span>
+              {[
+                ['all', `All (${activeQuestions.length})`],
+                ['incorrect', `Incorrect (${incorrectQs.length})`],
+                ['bookmarked', `Bookmarked (${activeQuestions.filter(q => storage.bookmarks.includes(q.id)).length})`],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setResultsFilter(key)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    resultsFilter === key
+                      ? 'bg-slate-900 dark:bg-blue-600 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >{label}</button>
+              ))}
+            </div>
+
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 pl-2">Question review</h3>
+
+            <div className="space-y-4">
+              {shown.length === 0 && (
+                <div className="text-center text-slate-500 dark:text-slate-400 py-12">No questions in this view.</div>
+              )}
+              {shown.map((q) => {
+                const origIdx = activeQuestions.indexOf(q);
                 const userAnswer = userAnswers[q.id];
                 const isCorrect = userAnswer === q.correctAnswer;
                 const isUnanswered = !userAnswer;
+                const isBookmarked = storage.bookmarks.includes(q.id);
 
                 return (
-                  <div key={q.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 overflow-hidden">
-                    <div className="flex items-start mb-4">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold mr-4 mt-1
-                        ${isCorrect ? 'bg-emerald-500' : isUnanswered ? 'bg-slate-300' : 'bg-red-500'}`}>
-                        {idx + 1}
+                  <div key={q.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-6">
+                    <div className="flex items-start mb-3">
+                      <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white font-bold mr-3 mt-1 text-sm ${isCorrect ? 'bg-emerald-500' : isUnanswered ? 'bg-slate-400 dark:bg-slate-600' : 'bg-red-500'}`}>
+                        {origIdx + 1}
                       </div>
-                      <div>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Domain {q.domain}</span>
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">• {q.conceptualAspect}</span>
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">D{q.domain}</span>
+                          {(q.tags || []).slice(0, 3).map(t => (
+                            <span key={t} className="text-xs text-slate-400 dark:text-slate-500">· {formatTagLabel(t)}</span>
+                          ))}
+                          <button onClick={() => toggleBookmark(q.id)} className={`ml-auto p-1 rounded ${isBookmarked ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'}`}>
+                            <Bookmark className="w-4 h-4" filled={isBookmarked} />
+                          </button>
                         </div>
-                        <h4 className="text-lg font-medium text-slate-900 leading-snug mb-4">{q.text}</h4>
+                        <h4 className="text-base font-medium text-slate-900 dark:text-slate-100 leading-snug mb-3">{q.text}</h4>
                       </div>
                     </div>
-
-                    <div className="pl-12 grid gap-3 mb-6">
+                    <div className="pl-10 grid gap-1.5 mb-4">
                       {Object.entries(q.options).map(([key, value]) => {
                         const isSelected = userAnswer === key;
                         const isActualCorrect = q.correctAnswer === key;
-                        
-                        let bgClass = "bg-slate-50 text-slate-600";
-                        if (isActualCorrect) bgClass = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium";
-                        else if (isSelected && !isActualCorrect) bgClass = "bg-red-50 border border-red-200 text-red-800";
-
+                        let bgClass = "bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400";
+                        if (isActualCorrect) bgClass = "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200 font-medium";
+                        else if (isSelected && !isActualCorrect) bgClass = "bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-800 dark:text-red-200";
                         return (
-                          <div key={key} className={`p-3 rounded-lg flex items-center ${bgClass}`}>
-                            <span className="w-6 font-bold opacity-70">{key}.</span>
+                          <div key={key} className={`p-2.5 rounded-lg flex items-start text-sm ${bgClass}`}>
+                            <span className="w-5 font-bold opacity-70 flex-shrink-0">{key}.</span>
                             <span className="flex-grow">{value}</span>
-                            {isActualCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 ml-2" />}
-                            {isSelected && !isActualCorrect && <XCircle className="w-5 h-5 text-red-500 ml-2" />}
+                            {isActualCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-500 ml-2 flex-shrink-0 mt-0.5" />}
+                            {isSelected && !isActualCorrect && <XCircle className="w-4 h-4 text-red-500 ml-2 flex-shrink-0 mt-0.5" />}
                           </div>
                         );
                       })}
                       {isUnanswered && (
-                         <div className="text-amber-600 text-sm font-semibold flex items-center mt-2">
-                           <XCircle className="w-4 h-4 mr-1"/> You did not answer this question.
-                         </div>
+                        <div className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center mt-1">
+                          <AlertCircle className="w-3.5 h-3.5 mr-1" /> You did not answer this question.
+                        </div>
                       )}
                     </div>
-
-                    <div className="pl-12">
-                      <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 text-sm text-slate-700 leading-relaxed">
-                        <strong className="text-blue-800 block mb-1">Explanation:</strong>
-                        {q.explanation}
-                      </div>
+                    <div className="pl-10">
+                      <details className="text-sm">
+                        <summary className="cursor-pointer text-blue-700 dark:text-blue-400 font-semibold mb-2">Explanation</summary>
+                        <div className="mt-2 p-4 bg-blue-50/50 dark:bg-blue-950/30 rounded-xl border border-blue-100 dark:border-blue-900/50 text-slate-700 dark:text-slate-300">
+                          {renderExplanation(q.explanation)}
+                        </div>
+                      </details>
                     </div>
                   </div>
                 );
               })}
-            </div>
-
-            <div className="fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 flex justify-center">
-              <button
-                onClick={resetToMenu}
-                className="flex items-center px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg"
-              >
-                <RefreshCcw className="w-5 h-5 mr-2" />
-                Return to Dashboard
-              </button>
             </div>
           </div>
         );
@@ -550,14 +1144,11 @@
       return (
         <div className="min-h-screen">
           <style dangerouslySetInnerHTML={{__html: `
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in {
-              animation: fadeIn 0.4s ease-out forwards;
-            }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+            kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
           `}} />
+          {headerBar}
           {appState === 'menu' && renderMenu()}
           {appState === 'quiz' && renderQuiz()}
           {appState === 'results' && renderResults()}
@@ -565,8 +1156,7 @@
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>

@@ -2396,7 +2396,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "sepsis_infection",
+      "ventilation"
+    ],
     "text": "A 58-year-old male is referred for retrieval following emergency laparotomy for bowel perforation. He is sedated and ventilated. His arterial blood gas on FiO₂ 0.5 shows: pH 7.18, PaCO₂ 3.1 kPa, PaO₂ 11.2 kPa, HCO₃⁻ 8.6 mmol/L, lactate 6.8 mmol/L. Which of the following best describes this blood gas pattern?",
     "options": {
       "A": "Respiratory alkalosis with metabolic compensation",
@@ -2413,7 +2416,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "neurology",
+      "ventilation"
+    ],
     "text": "A ventilated patient is being retrieved following a severe traumatic brain injury. Current ventilator settings: FiO₂ 0.4, RR 16, Vt 500mL, PEEP 5 cmH₂O. ABG shows: pH 7.52, PaCO₂ 3.0 kPa, PaO₂ 14 kPa. The patient weighs 80kg. What is the most immediately dangerous aspect of this blood gas in the context of this patient's injury?",
     "options": {
       "A": "Respiratory alkalosis causing left shift of the oxyhaemoglobin dissociation curve",
@@ -2430,7 +2436,10 @@
     "domain": "1",
     "subdomain": "1.1",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "obstetrics",
+      "neurology"
+    ],
     "text": "You are receiving a referral call about a 34-year-old woman, 32 weeks pregnant, admitted to a district general hospital following a witnessed tonic-clonic seizure. BP is 172/110 mmHg. She has no prior history of epilepsy. Which of the following is the most appropriate initial management at the referring centre prior to your arrival?",
     "options": {
       "A": "Diazepam 10 mg IV as a one-off dose",
@@ -2447,7 +2456,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "cardiac",
+      "pharmacology"
+    ],
     "text": "You are planning the retrieval of a 67-year-old man with a STEMI-equivalent occlusion on ECG at a hospital 90 minutes by road from the nearest primary PCI centre. He presented 45 minutes ago with ongoing chest pain. The referring hospital has thrombolysis available but no catheter laboratory. What is the most appropriate revascularisation strategy?",
     "options": {
       "A": "Transfer for primary PCI only if symptom onset is within 3 hours",
@@ -2464,7 +2476,10 @@
     "domain": "1",
     "subdomain": "1.4",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "neurology",
+      "resuscitation"
+    ],
     "text": "Which of the following is the most important physiological target to achieve before commencing road retrieval of a patient with severe traumatic brain injury (GCS 7, bilateral fixed dilated pupils following head CT)?",
     "options": {
       "A": "SpO₂ ≥98%, MAP ≥70 mmHg, PaCO₂ 4.0–4.5 kPa",
@@ -2481,7 +2496,10 @@
     "domain": "1",
     "subdomain": "1.1",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "toxicology",
+      "pharmacology"
+    ],
     "text": "You receive a referral for a 22-year-old male with no past medical history who was found unresponsive at home. On examination at the referring hospital: GCS 7 (E2V2M3), pinpoint pupils, RR 6, SpO₂ 84% on air. Which diagnosis best accounts for this clinical picture and what is the most appropriate immediate intervention?",
     "options": {
       "A": "Hypoglycaemia; 50 mL 50% glucose IV",
@@ -2498,7 +2516,9 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "ventilation"
+    ],
     "text": "A ventilated patient with ARDS (P/F ratio 120) is being retrieved. Current settings: PC-CMV, FiO₂ 0.8, RR 22, PC above PEEP 14 cmH₂O, PEEP 12 cmH₂O, I:E 1:2. Measured exhaled Vt is 7.8 mL/kg predicted body weight. Plateau pressure is 34 cmH₂O. What is the single most important ventilator adjustment before departure?",
     "options": {
       "A": "Reduce tidal volume to achieve 4–6 mL/kg PBW",
@@ -2535,7 +2555,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "sepsis_infection",
+      "pharmacology"
+    ],
     "text": "You are coordinating the retrieval of a 44-year-old woman with community-acquired septic shock (BP 78/45, HR 128, lactate 5.2 mmol/L, temp 39.8°C) from a district general hospital with a 90-minute transfer time to the regional ICU. She has not yet received antibiotics. In terms of antibiotic timing, which statement most accurately reflects current guidance?",
     "options": {
       "A": "Antibiotics can be delayed until arrival at the receiving ICU if transfer is within 90 minutes",
@@ -2552,7 +2575,10 @@
     "domain": "1",
     "subdomain": "1.4",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "calculation",
+      "equipment"
+    ],
     "text": "When calculating oxygen requirements for a road retrieval expected to take 90 minutes, which formula correctly estimates the minimum oxygen volume required?",
     "options": {
       "A": "(Minute volume × FiO₂ × transfer time) × 2",
@@ -2588,7 +2614,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "airway",
+      "ventilation"
+    ],
     "text": "A ventilated patient has the following chest X-ray findings on pre-retrieval review: endotracheal tube tip at 3 cm above the carina, right-sided opacification with air bronchograms, tracheal deviation to the right, and a right-sided pleural effusion. The patient's SpO₂ is 91% on FiO₂ 0.6. What is the most likely diagnosis and immediate management priority?",
     "options": {
       "A": "Right main bronchus intubation with left lung atelectasis; withdraw ETT 2–3 cm",
@@ -2605,7 +2634,9 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "pharmacology"
+    ],
     "text": "A 38-year-old woman with known Type 1 diabetes is retrieved in diabetic ketoacidosis (DKA). ABG: pH 7.09, bicarbonate 8 mmol/L, glucose 34 mmol/L, ketones 4.8 mmol/L, potassium 3.1 mmol/L. She is drowsy but maintaining her airway. According to JBDS-IP guidelines, what is the most critical electrolyte management issue during her transfer?",
     "options": {
       "A": "Administer sodium bicarbonate to correct the acidosis",
@@ -2622,7 +2653,10 @@
     "domain": "1",
     "subdomain": "1.4",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "equipment",
+      "safety"
+    ],
     "text": "Which of the following statements most accurately describes appropriate vascular access requirements prior to inter-hospital retrieval of a critically ill adult patient?",
     "options": {
       "A": "A single peripheral IV cannula is adequate for most retrievals if patent and large-bore",
@@ -2639,7 +2673,9 @@
     "domain": "1",
     "subdomain": "1.1",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "sepsis_infection"
+    ],
     "text": "A 29-year-old male is referred with a 3-day history of fever, productive cough, and pleuritic chest pain. He is hypoxic (SpO₂ 88% on 15L O₂), tachycardic (HR 124), hypotensive (BP 92/60), confused (GCS 13), and has a urea of 14 mmol/L. Using the CURB-65 score, what is his score and what does this indicate regarding immediate management?",
     "options": {
       "A": "CURB-65 score 3; suggests moderate risk, outpatient or short-stay treatment appropriate",
@@ -2656,7 +2692,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "cardiac",
+      "pharmacology"
+    ],
     "text": "During pre-retrieval assessment, you review the echocardiogram of a patient being transferred for cardiogenic shock following anterior STEMI. It shows an ejection fraction of 20%, moderate mitral regurgitation, and a dilated, hypokinetic left ventricle. The patient is currently on noradrenaline 0.3 mcg/kg/min and has a MAP of 62 mmHg. Which vasopressor/inotrope combination is most appropriate for this patient's haemodynamic profile during transfer?",
     "options": {
       "A": "Increase noradrenaline to 0.5 mcg/kg/min",
@@ -2673,7 +2712,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "haematology",
+      "equipment"
+    ],
     "text": "A 72-year-old patient with acute-on-chronic liver failure is referred for retrieval. He is encephalopathic (Grade III), coagulopathic (INR 3.2), and thrombocytopaenic (platelets 48 × 10⁹/L). A peripheral IV has been attempted four times unsuccessfully. You are considering central venous access. Which site is most appropriate and what precaution is most important?",
     "options": {
       "A": "Any site is acceptable providing INR is corrected to <1.5 with FFP first",
@@ -2710,7 +2752,9 @@
     "domain": "1",
     "subdomain": "1.1",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "communication"
+    ],
     "text": "When taking a retrieval referral call, which structured communication tool is most widely recommended for the clinical handover between referring and retrieval team?",
     "options": {
       "A": "SBAR",
@@ -2727,7 +2771,11 @@
     "domain": "1",
     "subdomain": "1.4",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "ventilation",
+      "equipment",
+      "governance"
+    ],
     "text": "A patient with severe ARDS (P/F ratio 90) is being retrieved by road. The retrieval team's transport ventilator is limited to a maximum PEEP of 15 cmH₂O and FiO₂ of 1.0. The patient is currently on the ICU ventilator with PEEP 18 cmH₂O, FiO₂ 0.95, prone positioning, and inhaled nitric oxide. Which statement best reflects the decision-making process before this transfer?",
     "options": {
       "A": "Inhaled nitric oxide can be safely discontinued 1 hour before transfer without adverse effect",
@@ -2744,7 +2792,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "sepsis_infection",
+      "haematology"
+    ],
     "text": "A 56-year-old male with a known history of haematological malignancy (neutrophil count 0.2 × 10⁹/L) presents with rigors, fever (39.6°C), and hypotension (BP 86/50). What is the most critical time-sensitive intervention?",
     "options": {
       "A": "Antifungal therapy as first-line given likely fungal aetiology in neutropenia",
@@ -2761,7 +2812,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "cardiac",
+      "pharmacology"
+    ],
     "text": "You review a 12-lead ECG of a 48-year-old female referred with central chest pain and dyspnoea. The ECG shows: sinus tachycardia, S1Q3T3 pattern, right bundle branch block, and T-wave inversion in V1–V4. What is the most likely diagnosis and most time-critical intervention?",
     "options": {
       "A": "Pericarditis; NSAIDs and colchicine",
@@ -2778,7 +2832,10 @@
     "domain": "1",
     "subdomain": "1.1",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "neurology",
+      "toxicology"
+    ],
     "text": "A 40-year-old male is referred from a peripheral hospital. He has a history of heavy alcohol use. He presents with confusion, ophthalmoplegia, and ataxia. Temperature 37.2°C, GCS 12. Blood glucose is 5.4 mmol/L. Which is the most important immediate intervention?",
     "options": {
       "A": "IV thiamine (Pabrinex) 500 mg three times daily for 3 days before any glucose-containing fluids",
@@ -2795,7 +2852,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "cardiac",
+      "pharmacology"
+    ],
     "text": "A 54-year-old man with hypertension is referred with a sudden-onset tearing interscapular pain radiating to the jaw. BP is 195/105 mmHg in the right arm and 150/90 mmHg in the left arm. CXR shows a widened mediastinum. ECG shows normal sinus rhythm with no ischaemic changes. What is the most appropriate management plan?",
     "options": {
       "A": "Control heart rate and blood pressure with IV labetalol; urgent CT aortography; transfer to cardiothoracic surgical centre",
@@ -2832,7 +2892,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "obstetrics",
+      "trauma"
+    ],
     "text": "A 31-year-old female, 28 weeks pregnant, is referred following a high-speed road traffic collision. She is haemodynamically unstable (BP 88/54, HR 132). FAST scan shows free fluid in the abdomen. The patient is conscious and has a CTG showing foetal heart decelerations. What is the most appropriate immediate management priority?",
     "options": {
       "A": "Transfer the patient immediately to the nearest obstetric unit without intervention",
@@ -2849,7 +2912,10 @@
     "domain": "1",
     "subdomain": "1.2",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "sepsis_infection",
+      "pharmacology"
+    ],
     "text": "A patient with septic shock is on a noradrenaline infusion of 0.4 mcg/kg/min. Despite adequate fluid resuscitation and antibiotics, his MAP remains 58 mmHg and his lactate is 4.6 mmol/L at 6 hours. ScvO₂ is 58%. What does the ScvO₂ indicate and what additional intervention should be considered?",
     "options": {
       "A": "ScvO₂ 58% indicates venous hypertension; reduce IV fluid rate",
@@ -2866,7 +2932,10 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "toxicology",
+      "pharmacology"
+    ],
     "text": "A patient has been intubated for airway protection following a paracetamol overdose. INR is 6.8, creatinine is 380 µmol/L, bilirubin is 145 µmol/L, pH is 7.26, and lactate is 5.1 mmol/L. Grade III hepatic encephalopathy is documented. What is the most critical intervention and the most important reason to transfer urgently?",
     "options": {
       "A": "Initiate N-acetylcysteine (NAC) infusion, transfer to liver transplant centre",
@@ -2903,7 +2972,9 @@
     "domain": "1",
     "subdomain": "1.3",
     "conceptualAspect": "Underpinning Knowledge",
-    "tags": [],
+    "tags": [
+      "ventilation"
+    ],
     "text": "A 66-year-old man with COPD (FEV1 42% predicted) is referred with an acute exacerbation. ABG on 28% Venturi mask: pH 7.29, PaCO₂ 8.9 kPa, PaO₂ 7.8 kPa, HCO₃⁻ 30 mmol/L. He is drowsy (GCS 13), RR 28, SpO₂ 88%. NIV has not yet been attempted. What is the most appropriate immediate management?",
     "options": {
       "A": "Initiate non-invasive ventilation (NIV) with IPAP 12–16 cmH₂O, EPAP 4–5 cmH₂O, FiO₂ titrated to SpO₂ 88–92%",
